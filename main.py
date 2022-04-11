@@ -24,5 +24,5 @@ if image_file is not None:
     st.image(load_image(image_file), width=250)
     pil = load_image_gray(image_file)
 
-    processed_image = process(pil)
-    st.image(processed_image, width=250)
+    processed_data = process(pil)
+    st.dataframe(processed_data)
