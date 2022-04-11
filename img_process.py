@@ -17,11 +17,11 @@ def process(img):
     image_without_borders = remove_lines(cv)
     # Get results
     cropped_without_borders = crop_periods_of_service(image_without_borders)
-    cropped_with_borders = crop_periods_of_service(img)
+    # cropped_with_borders = crop_periods_of_service(img)
 
     cropped_without_borders = cv_to_pil(cropped_without_borders)
-    cropped_with_borders = cv_to_pil(cropped_with_borders)
-    return cropped_without_borders, cropped_with_borders
+    # cropped_with_borders = cv_to_pil(cropped_with_borders)
+    return cropped_without_borders
 
 
 def pil_to_cv(img):
