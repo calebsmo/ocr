@@ -17,9 +17,6 @@ def process(img):
     cropped_without_borders = crop_periods_of_service(image_without_borders)
     cropped_with_borders = crop_periods_of_service(cv)
 
-    cropped_without_borders = cv_to_pil(cropped_without_borders)
-    cropped_with_borders = cv_to_pil(cropped_with_borders)
-
     boxes, bitnot, row, countcol = locate_cells(cropped_with_borders)
 
     arr = analyze_cells(cropped_without_borders, boxes, bitnot)
@@ -52,7 +49,6 @@ def cv_to_pil(img):
 def remove_lines(form_image):
     # Thresholding the image
     (thresh, img_bin) = cv2.threshold(form_image, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
-    # (thresh, img_bin) = cv2.threshold(form_image, 128, 255)
     # Invert the image
     img_bin = 255 - img_bin
 
