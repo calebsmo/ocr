@@ -1,6 +1,12 @@
 import streamlit as st
 from PIL import Image
-import pytesseract
+from img_process import process
+
+
+def load_image_gray(img_file):
+    # Read in and make greyscale
+    img = Image.open(img_file).convert('L')
+    return img
 
 
 def load_image(img_file):
@@ -8,12 +14,20 @@ def load_image(img_file):
     img = Image.open(img_file)
     return img
 
+
 st.title('1506 Help')
 
 image_file = st.file_uploader("Upload Images", type=["png", "jpg", "jpeg"])
 
 if image_file is not None:
-    img = load_image(image_file)
-    text = pytesseract.image_to_string(img)
 
-    st.write(text)
+    file_details = {"filename": image_file.name, "filetype": image_file.type,
+                    "filesize": image_file.size}
+
+    st.write(file_details)
+
+    st.image(load_image(image_file), width=250)
+    pil = load_image_gray(image_file)
+
+    processed_image = process(pil)
+    st.image(processed_image, width=250)
