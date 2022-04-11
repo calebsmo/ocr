@@ -1,6 +1,7 @@
 import cv2
 import streamlit
 import numpy as np
+import pandas as pd
 from PIL import Image
 import pytesseract
 import pyocr
@@ -9,18 +10,18 @@ import pyocr.builders
 
 def process(img):
     tools = pyocr.get_available_tools()
-    streamlit.write(tools)
-    # tool = tools[0]
+    tool = tools[0]
 
     cv = pil_to_cv(img)
     # Line-less copy
     image_without_borders = remove_lines(cv)
     # Get results
-    df = pytesseract.image_to_data(image_without_borders, lang='eng', output_type='data.frame')
-    streamlit.dataframe(df)
+    cropped_without_borders = crop_periods_of_service(image_without_borders)
+    cropped_with_borders = crop_periods_of_service(img)
 
-    cv_image = cv_to_pil(image_without_borders)
-    return cv_image
+    cropped_without_borders = cv_to_pil(cropped_without_borders)
+    cropped_with_borders = cv_to_pil(cropped_with_borders)
+    return cropped_without_borders, cropped_with_borders
 
 
 def pil_to_cv(img):
@@ -83,4 +84,35 @@ def remove_lines(form_image):
 def has_text(df, txt):
     return len(df[df['text'] == txt]) > 0
 
+
+def crop_periods_of_service(img):
+    # Get results
+    df = pytesseract.image_to_data(img, lang='eng', output_type='data.frame')
+
+    # Get width and height for crop
+    height, width = img.shape
+
+    if has_text(df, 'IDENTIFICATION'):
+        y = df[df['text'] == 'IDENTIFICATION']['top'].iloc[0]
+        h = df[df['text'] == 'IDENTIFICATION']['height'].iloc[0]
+        finder = img[y + h:height, 0:width]
+
+    elif has_text(df, 'NUMBER'):
+        y = df[df['text'] == 'NUMBER']['top'].iloc[0]
+        h = df[df['text'] == 'NUMBER']['height'].iloc[0]
+        finder = img[y + h:height, 0:width]
+
+    df = pytesseract.image_to_data(img, lang='eng', output_type='data.frame')
+
+    if has_text(df, 'PERIODS'):
+        y = df[df['text'] == 'PERIODS']['top'].iloc[0]
+        h = df[df['text'] == 'PERIODS']['height'].iloc[0]
+        finder = img[y + int(h * 6.5):y + int(h * 70), 0:width]
+
+    elif has_text(df, 'SERVICE'):
+        y = df[df['text'] == 'SERVICE']['top'].iloc[0]
+        h = df[df['text'] == 'SERVICE']['height'].iloc[0]
+        finder = img[y + int(h * 6.5):y + int(h * 70), 0:width]
+
+    return finder
 
